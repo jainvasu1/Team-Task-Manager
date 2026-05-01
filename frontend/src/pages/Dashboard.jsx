@@ -4,6 +4,7 @@ import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import StatCard from '../components/StatCard';
 import ProjectCard from '../components/ProjectCard';
+import TaskBoard from '../components/TaskBoard';
 import { Link } from 'react-router-dom';
 import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
@@ -53,6 +54,8 @@ export default function Dashboard() {
             <ProjectCard tag="URGENT" title="Q4 Marketing Assets" subtitle="Social media and ad campaign" progress={55} daysLeft={3} />
           </div>
         </section>
+
+        <TaskBoard />
       </main>
     </div>
   );
