@@ -13,17 +13,33 @@ const NAV = [
 
 function MiniCalendar() {
   const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
-  const monthName = today.toLocaleString('default', { month: 'long' });
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const [cur, setCur] = useState({ year: today.getFullYear(), month: today.getMonth() });
+
+  const prev = () => setCur(({ year, month }) =>
+    month === 0 ? { year: year - 1, month: 11 } : { year, month: month - 1 }
+  );
+  const next = () => setCur(({ year, month }) =>
+    month === 11 ? { year: year + 1, month: 0 } : { year, month: month + 1 }
+  );
+
+  const monthName = new Date(cur.year, cur.month).toLocaleString('default', { month: 'long' });
+  const firstDay = new Date(cur.year, cur.month, 1).getDay();
+  const daysInMonth = new Date(cur.year, cur.month + 1, 0).getDate();
   const cells = Array(firstDay).fill(null).concat(
     Array.from({ length: daysInMonth }, (_, i) => i + 1)
   );
+  const isToday = (d) =>
+    d === today.getDate() &&
+    cur.month === today.getMonth() &&
+    cur.year === today.getFullYear();
+
   return (
-    <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-50 w-64 rounded-2xl border border-white/10 bg-[#13101a]/95 backdrop-blur-xl shadow-2xl p-4">
-      <p className="text-center text-sm font-semibold text-white mb-3">{monthName} {year}</p>
+    <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-50 w-72 rounded-2xl border border-white/10 bg-[#13101a]/95 backdrop-blur-xl shadow-2xl p-4">
+      <div className="flex items-center justify-between mb-3">
+        <button onClick={prev} className="w-7 h-7 grid place-items-center rounded-lg text-zinc-400 hover:bg-white/10 hover:text-white transition text-lg leading-none">‹</button>
+        <p className="text-sm font-semibold text-white">{monthName} {cur.year}</p>
+        <button onClick={next} className="w-7 h-7 grid place-items-center rounded-lg text-zinc-400 hover:bg-white/10 hover:text-white transition text-lg leading-none">›</button>
+      </div>
       <div className="grid grid-cols-7 gap-1 text-center mb-2">
         {['S','M','T','W','T','F','S'].map((d, i) => (
           <span key={i} className="text-[10px] text-zinc-500 font-medium">{d}</span>
@@ -34,12 +50,12 @@ function MiniCalendar() {
           <button
             key={i}
             disabled={!d}
-            className={`w-7 h-7 mx-auto rounded-full text-xs transition ${
-              d === today.getDate()
+            className={`w-8 h-8 mx-auto rounded-full text-xs transition ${
+              isToday(d)
                 ? 'bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white font-semibold shadow-md shadow-fuchsia-600/30'
                 : d
                 ? 'text-zinc-300 hover:bg-white/10'
-                : ''
+                : 'pointer-events-none'
             }`}
           >
             {d || ''}
