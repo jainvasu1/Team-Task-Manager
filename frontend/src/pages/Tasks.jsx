@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Menu, Search } from 'lucide-react';
+import { Menu, Search, ChevronDown, Filter } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const VIEWS = ['Board', 'List', 'Calendar'];
@@ -45,6 +45,20 @@ export default function Tasks() {
             </button>
           ))}
         </div>
+      </div>
+
+      <div className="px-4 mt-5 flex flex-wrap items-center gap-2">
+        <button className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06] transition">
+          <Filter className="w-3 h-3" /> Project
+        </button>
+        {['Priority', 'Status', 'Assignee'].map((f) => (
+          <button
+            key={f}
+            className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06] transition"
+          >
+            {f} <ChevronDown className="w-3 h-3" />
+          </button>
+        ))}
       </div>
     </div>
   );
