@@ -3,6 +3,8 @@ import { LayoutGrid, Zap, CheckCircle2, AlertTriangle } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import StatCard from '../components/StatCard';
+import ProjectCard from '../components/ProjectCard';
+import { Link } from 'react-router-dom';
 import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -38,6 +40,18 @@ export default function Dashboard() {
           <StatCard icon={Zap} label="IN PROGRESS" value={String(stats.inProgress).padStart(2, '0')} trend="Stable" trendType="flat" accent="fuchsia" />
           <StatCard icon={CheckCircle2} label="COMPLETED" value={String(stats.done).padStart(2, '0')} trend="+8%" trendType="up" accent="emerald" />
           <StatCard icon={AlertTriangle} label="OVERDUE" value={String(stats.overdue).padStart(2, '0')} trend="-5%" trendType="down" accent="rose" />
+        </section>
+
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Recent Projects</h2>
+            <Link to="/projects" className="text-xs text-fuchsia-400 hover:text-fuchsia-300">View All →</Link>
+          </div>
+          <div className="grid md:grid-cols-3 gap-4">
+            <ProjectCard tag="ACTIVE" title="Neo-Banking UI Design" subtitle="Fintech Mobile Application overhaul" progress={70} daysLeft={12} />
+            <ProjectCard tag="PLANNING" title="TaskFlow 2.0 Docs" subtitle="Internal documentation and wiki" progress={20} daysLeft={28} />
+            <ProjectCard tag="URGENT" title="Q4 Marketing Assets" subtitle="Social media and ad campaign" progress={55} daysLeft={3} />
+          </div>
         </section>
       </main>
     </div>
