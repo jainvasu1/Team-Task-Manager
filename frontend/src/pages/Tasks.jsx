@@ -1,27 +1,30 @@
-import { useEffect, useState } from 'react';
-import api from '../lib/api';
+import { useState } from 'react';
+import { Menu, Search } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 export default function Tasks() {
-  const [tasks, setTasks] = useState([]);
-  useEffect(() => { api.get('/tasks?mine=true').then((r) => setTasks(r.data)); }, []);
-
+  const { user } = useAuth();
   return (
-    <div className="min-h-screen p-6 max-w-7xl mx-auto space-y-4">
-      <h1 className="text-2xl font-semibold">My Tasks</h1>
-      <div className="card divide-y divide-white/5">
-        {tasks.map((t) => (
-          <div key={t._id} className="py-3 flex justify-between items-center">
-            <div>
-              <p className="font-medium">{t.title}</p>
-              <p className="text-xs text-zinc-400">{t.project?.name}</p>
-            </div>
-            <span className="text-xs px-2 py-1 rounded-full bg-white/10 capitalize">
-              {t.status}
-            </span>
+    <div className="min-h-screen bg-[#0A0612] text-zinc-100 pb-24">
+      {/* Top bar */}
+      <header className="sticky top-0 z-30 bg-[#0a0612]/80 backdrop-blur-xl border-b border-white/5">
+        <div className="px-4 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button className="w-9 h-9 grid place-items-center rounded-lg text-zinc-300 hover:bg-white/5">
+              <Menu className="w-5 h-5" />
+            </button>
+            <h1 className="text-fuchsia-400 font-semibold">Tasks</h1>
           </div>
-        ))}
-        {tasks.length === 0 && <p className="text-zinc-500 py-4">No tasks assigned.</p>}
-      </div>
+          <div className="flex items-center gap-3">
+            <button className="w-9 h-9 grid place-items-center rounded-lg text-zinc-300 hover:bg-white/5">
+              <Search className="w-4 h-4" />
+            </button>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 grid place-items-center text-[11px] font-semibold">
+              {user?.name?.[0]?.toUpperCase() || 'U'}
+            </div>
+          </div>
+        </div>
+      </header>
     </div>
   );
 }
