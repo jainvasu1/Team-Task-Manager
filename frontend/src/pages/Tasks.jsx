@@ -8,9 +8,47 @@ const NAV = [
   { to: '/dashboard', label: 'Dash', icon: LayoutGrid },
   { to: '/tasks', label: 'Tasks', icon: CheckSquare },
   { to: '/projects', label: 'Projects', icon: FolderKanban },
-  { to: '/calendar', label: 'Cal', icon: CalIcon },
   { to: '/settings', label: 'Set', icon: Settings },
 ];
+
+function MiniCalendar() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const monthName = today.toLocaleString('default', { month: 'long' });
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const cells = Array(firstDay).fill(null).concat(
+    Array.from({ length: daysInMonth }, (_, i) => i + 1)
+  );
+  return (
+    <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-50 w-64 rounded-2xl border border-white/10 bg-[#13101a]/95 backdrop-blur-xl shadow-2xl p-4">
+      <p className="text-center text-sm font-semibold text-white mb-3">{monthName} {year}</p>
+      <div className="grid grid-cols-7 gap-1 text-center mb-2">
+        {['S','M','T','W','T','F','S'].map((d, i) => (
+          <span key={i} className="text-[10px] text-zinc-500 font-medium">{d}</span>
+        ))}
+      </div>
+      <div className="grid grid-cols-7 gap-1 text-center">
+        {cells.map((d, i) => (
+          <button
+            key={i}
+            disabled={!d}
+            className={`w-7 h-7 mx-auto rounded-full text-xs transition ${
+              d === today.getDate()
+                ? 'bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white font-semibold shadow-md shadow-fuchsia-600/30'
+                : d
+                ? 'text-zinc-300 hover:bg-white/10'
+                : ''
+            }`}
+          >
+            {d || ''}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 const SAMPLE_TASKS = [
   { id: 't1', title: 'Design System Audit for Q3 Sprint', priority: 'URGENT', status: 'IN PROGRESS', assignee: 'Alex Miller', due: 'Oct 24' },
@@ -24,6 +62,7 @@ export default function Tasks() {
   const { user } = useAuth();
   const [view, setView] = useState('List');
   const [selected, setSelected] = useState(new Set());
+  const [showCal, setShowCal] = useState(false);
 
   const toggle = (id) => {
     const next = new Set(selected);
@@ -107,8 +146,9 @@ export default function Tasks() {
 
       {/* Bottom nav */}
       <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-white/5 bg-[#0a0612]/95 backdrop-blur-xl">
+        {showCal && <MiniCalendar />}
         <div className="grid grid-cols-5 px-2 py-2">
-          {NAV.map(({ to, label, icon: Icon }) => (
+          {NAV.slice(0, 3).map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
@@ -122,6 +162,28 @@ export default function Tasks() {
               {label.toUpperCase()}
             </NavLink>
           ))}
+          {/* Cal toggle */}
+          <button
+            onClick={() => setShowCal(!showCal)}
+            className={`flex flex-col items-center gap-1 py-1.5 rounded-lg text-[10px] tracking-wider font-semibold transition ${
+              showCal ? 'text-fuchsia-400' : 'text-zinc-500 hover:text-zinc-300'
+            }`}
+          >
+            <CalIcon className="w-4 h-4" />
+            CAL
+          </button>
+          {/* Settings */}
+          <NavLink
+            to="/settings"
+            className={({ isActive }) =>
+              `flex flex-col items-center gap-1 py-1.5 rounded-lg text-[10px] tracking-wider font-semibold transition ${
+                isActive ? 'text-fuchsia-400' : 'text-zinc-500 hover:text-zinc-300'
+              }`
+            }
+          >
+            <Settings className="w-4 h-4" />
+            SET
+          </NavLink>
         </div>
       </nav>
 
