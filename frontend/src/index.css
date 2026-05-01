@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  @apply bg-bg text-zinc-100 font-sans antialiased;
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(99,102,241,0.18), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(236,72,153,0.15), transparent 40%),
+    radial-gradient(circle at 60% 30%, rgba(139,92,246,0.12), transparent 50%);
+  background-attachment: fixed;
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/[0.03] border border-white/10 backdrop-blur-xl;
+  }
+  .btn-primary {
+    @apply bg-brand-gradient text-white font-medium px-4 py-2 rounded-lg shadow-glow hover:opacity-95 transition;
+  }
+  .btn-ghost {
+    @apply bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-100 px-4 py-2 rounded-lg transition;
+  }
+  .input {
+    @apply w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:border-indigo-500/60 focus:ring-2 focus:ring-indigo-500/20 transition;
+  }
+  .card {
+    @apply glass rounded-2xl p-5;
+  }
+}
