@@ -1,12 +1,28 @@
 import { useState } from 'react';
 import { Menu, Search, ChevronDown, Filter } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import TaskRow from '../components/TaskRow';
+
+const SAMPLE_TASKS = [
+  { id: 't1', title: 'Design System Audit for Q3 Sprint', priority: 'URGENT', status: 'IN PROGRESS', assignee: 'Alex Miller', due: 'Oct 24' },
+  { id: 't2', title: 'API Documentation Review', priority: 'MEDIUM', status: 'BACKLOG', assignee: 'Sarah K.', due: 'Oct 28' },
+  { id: 't3', title: 'Weekly Sync Preparation', priority: 'LOW', status: 'PLANNING', assignee: 'James D.', due: 'Oct 30' },
+];
 
 const VIEWS = ['Board', 'List', 'Calendar'];
 
 export default function Tasks() {
   const { user } = useAuth();
   const [view, setView] = useState('List');
+  const [selected, setSelected] = useState(new Set());
+
+  const toggle = (id) => {
+    const next = new Set(selected);
+    next.has(id) ? next.delete(id) : next.add(id);
+    setSelected(next);
+  };
+  const toggleAll = () =>
+    setSelected(selected.size === SAMPLE_TASKS.length ? new Set() : new Set(SAMPLE_TASKS.map((t) => t.id)));
   return (
     <div className="min-h-screen bg-[#0A0612] text-zinc-100 pb-24">
       {/* Top bar */}
@@ -58,6 +74,25 @@ export default function Tasks() {
           >
             {f} <ChevronDown className="w-3 h-3" />
           </button>
+        ))}
+      </div>
+
+      <div className="px-4 mt-5 flex items-center justify-between text-xs">
+        <label className="flex items-center gap-2 text-zinc-300 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={selected.size === SAMPLE_TASKS.length}
+            onChange={toggleAll}
+            className="accent-fuchsia-500"
+          />
+          Select All
+        </label>
+        <span className="text-fuchsia-400 font-medium">{SAMPLE_TASKS.length} Tasks</span>
+      </div>
+
+      <div className="px-4 mt-3 space-y-3">
+        {SAMPLE_TASKS.map((t) => (
+          <TaskRow key={t.id} task={t} selected={selected.has(t.id)} onToggle={() => toggle(t.id)} />
         ))}
       </div>
     </div>
