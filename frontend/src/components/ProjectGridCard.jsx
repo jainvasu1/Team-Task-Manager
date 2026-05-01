@@ -32,23 +32,22 @@ export default function ProjectGridCard({
         </div>
       ) : null}
 
-      <div className="flex items-start justify-between">
-        {Icon && (
-          <div className={`w-10 h-10 rounded-lg grid place-items-center bg-gradient-to-br ${a.icon}`}>
-            <Icon className="w-5 h-5" />
-          </div>
-        )}
-        {badge && (
-          <span className="text-[10px] tracking-[0.2em] font-semibold text-violet-300 px-2 py-1 rounded-md bg-violet-500/10 border border-violet-500/20">
-            {badge}
-          </span>
-        )}
-        <div className="ml-auto flex -space-x-2">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          {Icon && (
+            <div className={`w-10 h-10 rounded-lg grid place-items-center bg-gradient-to-br ${a.icon} shrink-0`}>
+              <Icon className="w-5 h-5" />
+            </div>
+          )}
+          {badge && (
+            <span className="text-[10px] tracking-[0.2em] font-semibold text-violet-300 px-2 py-1 rounded-md bg-violet-500/10 border border-violet-500/20">
+              {badge}
+            </span>
+          )}
+        </div>
+        <div className="flex -space-x-2 shrink-0">
           {members.slice(0, 2).map((m, i) => (
-            <div
-              key={i}
-              className="w-6 h-6 rounded-full border-2 border-[#0A0612] bg-gradient-to-br from-violet-500 to-fuchsia-500"
-            />
+            <div key={i} className="w-6 h-6 rounded-full border-2 border-[#0A0612] bg-gradient-to-br from-violet-500 to-fuchsia-500" />
           ))}
           {members.length > 2 && (
             <div className="w-6 h-6 rounded-full border-2 border-[#0A0612] bg-white/10 grid place-items-center text-[9px] text-zinc-300">
