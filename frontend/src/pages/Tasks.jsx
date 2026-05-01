@@ -2,8 +2,11 @@ import { useState } from 'react';
 import { Menu, Search } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
+const VIEWS = ['Board', 'List', 'Calendar'];
+
 export default function Tasks() {
   const { user } = useAuth();
+  const [view, setView] = useState('List');
   return (
     <div className="min-h-screen bg-[#0A0612] text-zinc-100 pb-24">
       {/* Top bar */}
@@ -25,6 +28,24 @@ export default function Tasks() {
           </div>
         </div>
       </header>
+
+      <div className="px-4 mt-6 flex justify-center">
+        <div className="inline-flex p-1 rounded-full border border-white/10 bg-white/[0.03]">
+          {VIEWS.map((v) => (
+            <button
+              key={v}
+              onClick={() => setView(v)}
+              className={`px-5 py-1.5 text-xs font-medium rounded-full transition ${
+                view === v
+                  ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-md shadow-fuchsia-600/30'
+                  : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              {v}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
