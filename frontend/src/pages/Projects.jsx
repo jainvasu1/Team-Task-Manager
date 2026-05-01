@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Share2, BarChart3, Rocket, ShieldCheck, CreditCard, FolderKanban } from 'lucide-react';
+import { Share2, BarChart3, Rocket, ShieldCheck, CreditCard, FolderKanban, Plus, X } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import Topnav from '../components/Topnav';
 import ProjectGridCard from '../components/ProjectGridCard';
@@ -67,10 +67,25 @@ export default function Projects() {
   const { user } = useAuth();
   const [projects, setProjects] = useState([]);
   const [filter, setFilter] = useState('All');
+  const [showModal, setShowModal] = useState(false);
+  const [form, setForm] = useState({ name: '', description: '' });
+  const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    api.get('/projects').then((r) => setProjects(r.data)).catch(() => {});
-  }, []);
+  const load = () => api.get('/projects').then((r) => setProjects(r.data)).catch(() => {});
+  useEffect(() => { load(); }, []);
+
+  const create = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await api.post('/projects', form);
+      setForm({ name: '', description: '' });
+      setShowModal(false);
+      load();
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const list = useMemo(() => {
     const real = projects.map((p) => ({
@@ -93,7 +108,19 @@ export default function Projects() {
 
   return (
     <div className="min-h-screen bg-[#0A0612] text-zinc-100">
-      <Topnav />
+      <Topnav
+        action={
+          user?.role === 'admin' && (
+            <button
+              onClick={() => setShowModal(true)}
+              className="px-3 py-2 rounded-lg text-sm font-medium text-white bg-gradient-to-r from-violet-600 to-fuchsia-600 shadow-lg shadow-fuchsia-600/30 hover:opacity-95 transition flex items-center gap-1.5"
+            >
+              <Plus className="w-4 h-4" />
+              New Project
+            </button>
+          )
+        }
+      />
       <div className="flex">
         <Sidebar />
         <main className="flex-1 p-6 lg:p-10 space-y-8">
@@ -140,6 +167,50 @@ export default function Projects() {
           </section>
         </main>
       </div>
+
+      {showModal && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 backdrop-blur-sm p-4">
+          <form
+            onSubmit={create}
+            className="w-full max-w-md rounded-2xl border border-white/10 bg-[#13101a] p-6 shadow-2xl"
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="text-white text-lg font-semibold">New Project</h3>
+              <button type="button" onClick={() => setShowModal(false)} className="text-zinc-400 hover:text-white">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="mt-5 space-y-4">
+              <div>
+                <label className="text-[10px] tracking-[0.2em] font-semibold text-zinc-400">NAME</label>
+                <input
+                  required
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className="mt-2 w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20 transition"
+                  placeholder="Project name"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] tracking-[0.2em] font-semibold text-zinc-400">DESCRIPTION</label>
+                <textarea
+                  rows={3}
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  className="mt-2 w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20 transition"
+                  placeholder="What is this project about?"
+                />
+              </div>
+            </div>
+            <button
+              disabled={saving}
+              className="mt-6 w-full py-2.5 rounded-lg font-medium text-white bg-gradient-to-r from-violet-600 to-fuchsia-600 shadow-lg shadow-fuchsia-600/30 hover:opacity-95 transition disabled:opacity-60"
+            >
+              {saving ? 'Creating…' : 'Create Project'}
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   );
 }
