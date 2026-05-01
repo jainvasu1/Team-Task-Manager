@@ -77,6 +77,7 @@ export default function Login() {
       <div className="w-full lg:w-[520px] flex items-center justify-center p-6 lg:p-12 relative z-10">
         <form
           onSubmit={onSubmit}
+          autoComplete="off"
           className="w-full max-w-md rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-2xl p-8 shadow-[0_8px_60px_-15px_rgba(139,92,246,0.25)]"
         >
           <h2 className="text-white text-2xl font-semibold">Welcome Back</h2>
@@ -91,6 +92,8 @@ export default function Login() {
               <Mail className="w-4 h-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="email"
+                name="taskflow-email"
+                autoComplete="off"
                 placeholder="name@company.com"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -111,6 +114,8 @@ export default function Login() {
               <Lock className="w-4 h-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="password"
+                name="taskflow-password"
+                autoComplete="new-password"
                 placeholder="••••••••"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
