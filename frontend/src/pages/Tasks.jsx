@@ -3,7 +3,22 @@ import { Menu, Search, ChevronDown, Filter, Clock, UserPlus, Trash2, Plus, X, Ca
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import TaskRow from '../components/TaskRow';
+import FilterDropdown from '../components/FilterDropdown';
 import api from '../lib/api';
+
+const PRIORITY_OPTS = [
+  { value: 'all', label: 'All Priorities' },
+  { value: 'urgent', label: 'Urgent' },
+  { value: 'high', label: 'High' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'low', label: 'Low' },
+];
+const STATUS_OPTS = [
+  { value: 'all', label: 'All Statuses' },
+  { value: 'todo', label: 'To Do' },
+  { value: 'in-progress', label: 'In Progress' },
+  { value: 'done', label: 'Done' },
+];
 
 const VIEWS = ['Board', 'List', 'Calendar'];
 const PRIORITIES = ['low', 'medium', 'high', 'urgent'];
@@ -52,6 +67,9 @@ export default function Tasks() {
   const [tasks, setTasks] = useState([]);
   const [projects, setProjects] = useState([]);
   const [selected, setSelected] = useState(new Set());
+  const [filterPriority, setFilterPriority] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterAssignee, setFilterAssignee] = useState('all');
   const [showCal, setShowCal] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editTask, setEditTask] = useState(null);
@@ -65,7 +83,11 @@ export default function Tasks() {
   }, []);
 
   const toggle = (id) => { const n = new Set(selected); n.has(id) ? n.delete(id) : n.add(id); setSelected(n); };
-  const toggleAll = () => setSelected(selected.size === tasks.length ? new Set() : new Set(tasks.map((t) => t._id)));
+  const toggleAll = () => {
+    const ids = filteredTasks.map((t) => t._id);
+    const allSelected = ids.length > 0 && ids.every((id) => selected.has(id));
+    setSelected(allSelected ? new Set() : new Set(ids));
+  };
 
   const openCreate = () => {
     setEditTask(null);
@@ -114,7 +136,14 @@ export default function Tasks() {
     load();
   };
 
-  const rowTasks = tasks.map((t) => ({
+  const filteredTasks = tasks.filter((t) => {
+    if (filterPriority !== 'all' && t.priority !== filterPriority) return false;
+    if (filterStatus !== 'all' && t.status !== filterStatus) return false;
+    if (filterAssignee !== 'all' && (t.assignedTo?._id || t.assignedTo) !== filterAssignee) return false;
+    return true;
+  });
+
+  const rowTasks = filteredTasks.map((t) => ({
     id: t._id,
     title: t.title,
     priority: (t.priority || 'medium').toUpperCase(),
@@ -165,25 +194,47 @@ export default function Tasks() {
         <button className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06] transition">
           <Filter className="w-3 h-3" /> Project
         </button>
-        {['Priority', 'Status', 'Assignee'].map((f) => (
-          <button key={f} className="flex items-center gap-1 text-xs px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.03] text-zinc-300 hover:bg-white/[0.06] transition">
-            {f} <ChevronDown className="w-3 h-3" />
-          </button>
-        ))}
+        <FilterDropdown
+          label="Priority"
+          options={PRIORITY_OPTS}
+          value={filterPriority}
+          onChange={setFilterPriority}
+        />
+        <FilterDropdown
+          label="Status"
+          options={STATUS_OPTS}
+          value={filterStatus}
+          onChange={setFilterStatus}
+        />
+        <FilterDropdown
+          label="Assignee"
+          options={[
+            { value: 'all', label: 'All Assignees' },
+            ...Array.from(new Map(tasks.filter((t) => t.assignedTo).map((t) => [t.assignedTo._id || t.assignedTo, t.assignedTo?.name || 'Unknown'])).entries())
+              .map(([value, label]) => ({ value, label })),
+          ]}
+          value={filterAssignee}
+          onChange={setFilterAssignee}
+        />
       </div>
 
       {/* Select all + count */}
       <div className="px-4 mt-5 flex items-center justify-between text-xs">
-        <label className="flex items-center gap-2 text-zinc-300 cursor-pointer">
-          <input type="checkbox" checked={selected.size === tasks.length && tasks.length > 0} onChange={toggleAll} className="accent-fuchsia-500" />
+        <label className="flex items-center gap-2 text-zinc-300 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={filteredTasks.length > 0 && filteredTasks.every((t) => selected.has(t._id))}
+            onChange={toggleAll}
+            className="w-4 h-4 accent-fuchsia-500 cursor-pointer"
+          />
           Select All
         </label>
-        <span className="text-fuchsia-400 font-medium">{tasks.length} Tasks</span>
+        <span className="text-fuchsia-400 font-medium">{filteredTasks.length} Tasks</span>
       </div>
 
       {/* Task list */}
       <div className="px-4 mt-3 space-y-3">
-        {tasks.length === 0 ? (
+        {filteredTasks.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-white/10 py-16 text-center">
             <CheckSquare className="w-10 h-10 text-zinc-700 mx-auto mb-3" />
             <p className="text-zinc-500 text-sm">No tasks yet.</p>
