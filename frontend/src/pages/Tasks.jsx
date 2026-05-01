@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Menu, Search, ChevronDown, Filter } from 'lucide-react';
+import { Menu, Search, ChevronDown, Filter, Clock, UserPlus, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import TaskRow from '../components/TaskRow';
 
@@ -95,6 +95,27 @@ export default function Tasks() {
           <TaskRow key={t.id} task={t} selected={selected.has(t.id)} onToggle={() => toggle(t.id)} />
         ))}
       </div>
+
+      {selected.size > 0 && (
+        <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-40">
+          <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl border border-white/10 bg-[#1a1320]/95 backdrop-blur-xl shadow-2xl">
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-600 grid place-items-center text-xs font-semibold">
+              {selected.size}
+            </div>
+            <span className="text-sm text-white">{selected.size === 1 ? 'Item' : 'Items'} Selected</span>
+            <div className="w-px h-5 bg-white/10 mx-1" />
+            <button className="w-8 h-8 grid place-items-center rounded-lg text-zinc-300 hover:bg-white/10 transition">
+              <Clock className="w-4 h-4" />
+            </button>
+            <button className="w-8 h-8 grid place-items-center rounded-lg text-zinc-300 hover:bg-white/10 transition">
+              <UserPlus className="w-4 h-4" />
+            </button>
+            <button className="w-8 h-8 grid place-items-center rounded-lg text-rose-400 hover:bg-rose-500/10 transition">
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
