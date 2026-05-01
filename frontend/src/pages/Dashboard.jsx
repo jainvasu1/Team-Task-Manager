@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { LayoutGrid, Zap, CheckCircle2, AlertTriangle, Plus, Workflow } from 'lucide-react';
+import { LayoutGrid, Zap, CheckCircle2, AlertTriangle, Plus } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
 import Topbar from '../components/Topbar';
 import StatCard from '../components/StatCard';
@@ -26,14 +26,8 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[#0A0612] text-zinc-100 flex relative">
-      {/* tiny page header strip */}
-      <div className="absolute top-0 left-0 right-0 h-8 border-b border-white/5 bg-[#0a0612]/80 backdrop-blur flex items-center px-4 text-xs text-zinc-300 gap-2 z-20">
-        <Workflow className="w-3.5 h-3.5 text-fuchsia-400" />
-        Dashboard
-      </div>
-
       <Sidebar />
-      <main className="flex-1 p-6 lg:p-8 pt-14 space-y-8">
+      <main className="flex-1 p-6 lg:p-8 space-y-8">
         <Topbar />
         <header>
           <h1 className="text-3xl font-semibold">
