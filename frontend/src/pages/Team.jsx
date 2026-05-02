@@ -30,6 +30,20 @@ export default function Team() {
             <p className="text-zinc-400 text-sm mt-1">Manage your workspace members and roles.</p>
           </header>
 
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[
+              { label: 'Total Members', value: members.length },
+              { label: 'Admins', value: members.filter((m) => m.role === 'admin').length },
+              { label: 'Members', value: members.filter((m) => m.role === 'member').length },
+              { label: 'Joined This Month', value: members.filter((m) => new Date(m.createdAt).getMonth() === new Date().getMonth()).length },
+            ].map((s) => (
+              <div key={s.label} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                <p className="text-[10px] tracking-[0.2em] font-semibold text-zinc-500">{s.label.toUpperCase()}</p>
+                <p className="text-3xl font-semibold text-white mt-2">{String(s.value).padStart(2, '0')}</p>
+              </div>
+            ))}
+          </div>
+
           {members.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-white/10 py-20 text-center">
               <Users className="w-10 h-10 text-zinc-700 mx-auto mb-3" />
