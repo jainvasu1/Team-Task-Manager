@@ -1,15 +1,38 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Zap, Mail, Lock } from 'lucide-react';
+import { Zap, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import api from '../lib/api';
 
 export default function Login() {
   const { login } = useAuth();
   const nav = useNavigate();
   const [form, setForm] = useState({ email: '', password: '' });
   const [remember, setRemember] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [resetForm, setResetForm] = useState({ email: '', newPassword: '' });
+  const [resetMsg, setResetMsg] = useState('');
+  const [resetError, setResetError] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+
+  const submitReset = async (e) => {
+    e.preventDefault();
+    setResetError('');
+    setResetMsg('');
+    setResetLoading(true);
+    try {
+      await api.post('/auth/reset-password', resetForm);
+      setResetMsg('Password reset successful. You can now sign in.');
+      setResetForm({ email: '', newPassword: '' });
+    } catch (err) {
+      setResetError(err.response?.data?.message || 'Reset failed');
+    } finally {
+      setResetLoading(false);
+    }
+  };
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -74,6 +97,41 @@ export default function Login() {
         </div>
       </div>
 
+      {/* Forgot password modal */}
+      {forgotOpen && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 backdrop-blur-sm p-4">
+          <form onSubmit={submitReset} className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#13101a] p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-semibold">Reset Password</h3>
+              <button type="button" onClick={() => { setForgotOpen(false); setResetMsg(''); setResetError(''); }}
+                className="text-zinc-400 hover:text-white transition">✕</button>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <label className="text-zinc-400 text-xs font-medium">Email</label>
+                <input required type="email" value={resetForm.email}
+                  onChange={(e) => setResetForm({ ...resetForm, email: e.target.value })}
+                  placeholder="name@company.com"
+                  className="mt-1.5 w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-violet-500/60 transition" />
+              </div>
+              <div>
+                <label className="text-zinc-400 text-xs font-medium">New Password</label>
+                <input required type="password" value={resetForm.newPassword}
+                  onChange={(e) => setResetForm({ ...resetForm, newPassword: e.target.value })}
+                  placeholder="••••••••"
+                  className="mt-1.5 w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-violet-500/60 transition" />
+              </div>
+            </div>
+            {resetError && <p className="mt-2 text-rose-400 text-xs">{resetError}</p>}
+            {resetMsg && <p className="mt-2 text-emerald-400 text-xs">{resetMsg}</p>}
+            <button disabled={resetLoading}
+              className="mt-4 w-full py-2.5 rounded-lg font-medium text-white bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-95 transition disabled:opacity-60">
+              {resetLoading ? 'Resetting…' : 'Reset Password'}
+            </button>
+          </form>
+        </div>
+      )}
+
       {/* RIGHT — Login form */}
       <div className="w-full lg:w-[520px] flex items-center justify-center p-6 lg:p-12 relative z-10">
         <form
@@ -107,21 +165,25 @@ export default function Login() {
           <div className="mt-4">
             <div className="flex items-center justify-between">
               <label className="text-zinc-300 text-xs font-medium">Password</label>
-              <button type="button" className="text-[11px] font-semibold tracking-wider text-fuchsia-500 hover:text-fuchsia-400">
+              <button type="button" onClick={() => setForgotOpen(true)} className="text-[11px] font-semibold tracking-wider text-fuchsia-500 hover:text-fuchsia-400">
                 FORGOT?
               </button>
             </div>
             <div className="mt-2 relative">
               <Lock className="w-4 h-4 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 name="taskflow-password"
                 autoComplete="new-password"
                 placeholder="••••••••"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full bg-black/30 border border-white/10 rounded-lg pl-10 pr-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20 transition"
+                className="w-full bg-black/30 border border-white/10 rounded-lg pl-10 pr-10 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20 transition"
               />
+              <button type="button" onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition">
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
           </div>
 
