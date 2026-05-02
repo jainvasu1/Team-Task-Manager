@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ChevronRight, FolderKanban, UserPlus, X, Plus } from 'lucide-react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { ChevronRight, FolderKanban, UserPlus, X, Plus, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from '../components/Sidebar';
 import Topnav from '../components/Topnav';
@@ -9,6 +9,7 @@ import api from '../lib/api';
 export default function ProjectDetail() {
   const { id } = useParams();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [project, setProject] = useState(null);
   const [allUsers, setAllUsers] = useState([]);
   const [addingMember, setAddingMember] = useState(false);
@@ -45,6 +46,12 @@ export default function ProjectDetail() {
   const deleteTask = async (taskId) => {
     await api.delete(`/tasks/${taskId}`);
     loadTasks();
+  };
+
+  const deleteProject = async () => {
+    if (!confirm('Delete this project and all its tasks?')) return;
+    await api.delete(`/projects/${id}`);
+    navigate('/projects');
   };
 
   const COLS = [
@@ -91,6 +98,12 @@ export default function ProjectDetail() {
               }`}>
                 {project.status?.toUpperCase() || 'ACTIVE'}
               </span>
+              {user?.role === 'admin' && (
+                <button onClick={deleteProject}
+                  className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500/20 transition">
+                  <Trash2 className="w-3.5 h-3.5" /> Delete Project
+                </button>
+              )}
             </div>
           </header>
           {/* Members */}
@@ -119,18 +132,18 @@ export default function ProjectDetail() {
               </div>
             )}
 
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2">
               {(project.members || []).map((m) => (
-                <div key={m._id} className="flex items-center gap-2 px-3 py-2 rounded-xl border border-white/10 bg-white/[0.03] group">
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 grid place-items-center text-xs font-semibold">
+                <div key={m._id} className="flex items-center gap-2.5 px-3 py-2 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.05] group transition">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 grid place-items-center text-sm font-semibold text-white shrink-0">
                     {m.name?.[0]?.toUpperCase()}
                   </div>
-                  <div>
-                    <p className="text-sm text-white font-medium">{m.name}</p>
+                  <div className="min-w-0">
+                    <p className="text-sm text-white font-medium leading-tight">{m.name}</p>
                     <p className="text-[10px] text-zinc-500 capitalize">{m.role}</p>
                   </div>
                   {user?.role === 'admin' && m._id !== user.id && (
-                    <button onClick={() => removeMember(m._id)} className="ml-1 opacity-0 group-hover:opacity-100 text-zinc-500 hover:text-rose-400 transition">
+                    <button onClick={() => removeMember(m._id)} className="ml-1 opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-rose-400 transition">
                       <X className="w-3 h-3" />
                     </button>
                   )}

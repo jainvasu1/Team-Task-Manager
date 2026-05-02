@@ -1,4 +1,4 @@
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { Zap, Bell, Plus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -11,6 +11,7 @@ const links = [
 
 export default function Topnav({ action }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   return (
     <header className="sticky top-0 z-30 border-b border-white/5 bg-[#0a0612]/80 backdrop-blur-xl">
       <div className="px-6 h-14 flex items-center justify-between gap-6">
@@ -48,7 +49,10 @@ export default function Topnav({ action }) {
           </button>
           {action || (
             user?.role === 'admin' && (
-              <button className="px-3 py-2 rounded-lg text-sm font-medium text-white bg-gradient-to-r from-violet-600 to-fuchsia-600 shadow-lg shadow-fuchsia-600/30 hover:opacity-95 transition flex items-center gap-1.5">
+              <button
+                onClick={() => navigate('/projects', { state: { openModal: true } })}
+                className="px-3 py-2 rounded-lg text-sm font-medium text-white bg-gradient-to-r from-violet-600 to-fuchsia-600 shadow-lg shadow-fuchsia-600/30 hover:opacity-95 transition flex items-center gap-1.5"
+              >
                 <Plus className="w-4 h-4" />
                 New Project
               </button>

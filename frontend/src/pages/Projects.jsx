@@ -5,6 +5,7 @@ import Topnav from '../components/Topnav';
 import ProjectGridCard from '../components/ProjectGridCard';
 import api from '../lib/api';
 import { useAuth } from '../context/AuthContext';
+import { useLocation } from 'react-router-dom';
 
 const FILTERS = ['All', 'Active', 'Archived', 'My Projects'];
 const ACCENTS = ['violet', 'fuchsia', 'amber', 'emerald'];
@@ -17,8 +18,10 @@ export default function Projects() {
   const [form, setForm] = useState({ name: '', description: '' });
   const [saving, setSaving] = useState(false);
 
+  const location = useLocation();
   const load = () => api.get('/projects').then((r) => setProjects(r.data)).catch(() => {});
   useEffect(() => { load(); }, []);
+  useEffect(() => { if (location.state?.openModal) setShowModal(true); }, [location.state]);
 
   const create = async (e) => {
     e.preventDefault();
