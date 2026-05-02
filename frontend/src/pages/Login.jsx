@@ -7,6 +7,7 @@ export default function Login() {
   const { login } = useAuth();
   const nav = useNavigate();
   const [form, setForm] = useState({ email: '', password: '' });
+  const [remember, setRemember] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -15,7 +16,7 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      await login(form.email, form.password);
+      await login(form.email, form.password, remember);
       nav('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
@@ -122,6 +123,20 @@ export default function Login() {
                 className="w-full bg-black/30 border border-white/10 rounded-lg pl-10 pr-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20 transition"
               />
             </div>
+          </div>
+
+          {/* Remember me */}
+          <div className="mt-4 flex items-center gap-2">
+            <input
+              id="remember"
+              type="checkbox"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+              className="w-4 h-4 rounded border border-white/20 bg-black/30 accent-fuchsia-500 cursor-pointer"
+            />
+            <label htmlFor="remember" className="text-xs text-zinc-400 cursor-pointer select-none">
+              Remember me
+            </label>
           </div>
 
           {error && <p className="mt-3 text-rose-400 text-xs">{error}</p>}
