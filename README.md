@@ -1,38 +1,57 @@
 # TaskFlow — Team Task Manager
 
-Full-stack web app for project & task management with role-based access (Admin/Member).
+A full-stack web app for managing projects and tasks across a team, built with role-based access so admins and members each see only what they need.
 
-## Stack
-- **Backend:** Node.js, Express, MongoDB (Mongoose), JWT auth
-- **Frontend:** React (Vite), TailwindCSS, React Router, Axios
-- **Deployment:** Railway
+## Tech used
 
-## Structure
-```
-backend/   Express REST API
-frontend/  React SPA
-```
+Backend is Node.js with Express and MongoDB. Frontend is React (Vite) with TailwindCSS. Auth is JWT stored in localStorage.
 
-## Setup
+## How to run locally
 
-### Backend
+You need Node.js and a MongoDB Atlas connection string.
+
+**Backend**
+
 ```bash
 cd backend
 npm install
-cp .env.example .env   # fill in MONGO_URI and JWT_SECRET
+```
+
+Create a `.env` file inside the `backend` folder with these values:
+
+```
+PORT=5000
+MONGO_URI=your_mongodb_atlas_connection_string
+JWT_SECRET=any_long_random_string
+JWT_EXPIRES_IN=7d
+CLIENT_ORIGIN=http://localhost:5173
+```
+
+Then start the server:
+
+```bash
 npm run dev
 ```
 
-### Frontend
+**Frontend**
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
+Open `http://localhost:5173` in the browser.
+
+## Demo credentials
+
+Sign up at `/signup`. Set role to **Admin** to get full access (create projects, tasks, manage members). Members can view and update task status only.
+
 ## Features
-- Auth (signup/login) with JWT
-- Project CRUD, member management
-- Task creation, assignment, status tracking
-- Dashboard with overdue & status stats
-- Role-based access (Admin/Member)
+
+- Signup and login with JWT auth
+- Projects: create, view, delete, manage members
+- Tasks: create with priority and due date, assign to members, move between Todo / In Progress / Done
+- Dashboard showing task status breakdown and overdue count
+- Team page listing all workspace members with roles
+- Role-based access throughout — admin-only actions are hidden from members
