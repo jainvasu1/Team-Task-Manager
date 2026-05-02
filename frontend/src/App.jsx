@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard.jsx';
 import Projects from './pages/Projects.jsx';
 import ProjectDetail from './pages/ProjectDetail.jsx';
 import Tasks from './pages/Tasks.jsx';
+import Team from './pages/Team.jsx';
 
 export default function App() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+      <Route path="/team" element={<ProtectedRoute><Team /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
