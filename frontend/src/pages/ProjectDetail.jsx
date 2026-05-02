@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ChevronRight, FolderKanban, UserPlus, X } from 'lucide-react';
+import { ChevronRight, FolderKanban, UserPlus, X, Plus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from '../components/Sidebar';
 import Topnav from '../components/Topnav';
@@ -14,10 +14,13 @@ export default function ProjectDetail() {
   const [addingMember, setAddingMember] = useState(false);
   const [selectedUser, setSelectedUser] = useState('');
 
+  const [tasks, setTasks] = useState([]);
+  const loadTasks = () => api.get(`/tasks?project=${id}`).then((r) => setTasks(r.data)).catch(() => {});
   const load = () => api.get(`/projects/${id}`).then((r) => setProject(r.data)).catch(() => {});
 
   useEffect(() => {
     load();
+    loadTasks();
     api.get('/users').then((r) => setAllUsers(r.data)).catch(() => {});
   }, [id]);
 
@@ -33,6 +36,24 @@ export default function ProjectDetail() {
     await api.delete(`/projects/${id}/members/${userId}`);
     load();
   };
+
+  const updateTaskStatus = async (taskId, status) => {
+    await api.patch(`/tasks/${taskId}`, { status });
+    loadTasks();
+  };
+
+  const deleteTask = async (taskId) => {
+    await api.delete(`/tasks/${taskId}`);
+    loadTasks();
+  };
+
+  const COLS = [
+    { key: 'todo',        label: 'TO DO',       dot: 'bg-violet-400' },
+    { key: 'in-progress', label: 'IN PROGRESS',  dot: 'bg-fuchsia-400' },
+    { key: 'done',        label: 'DONE',         dot: 'bg-emerald-400' },
+  ];
+
+  const priorityColor = { low: 'text-emerald-400', medium: 'text-amber-400', high: 'text-orange-400', urgent: 'text-rose-400' };
 
   if (!project) return (
     <div className="min-h-screen bg-[#0A0612] flex items-center justify-center text-zinc-400">Loading…</div>
@@ -115,6 +136,62 @@ export default function ProjectDetail() {
                   )}
                 </div>
               ))}
+            </div>
+          </section>
+          {/* Tasks kanban */}
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-semibold">Tasks <span className="text-zinc-500 text-sm ml-1">{tasks.length}</span></h2>
+            </div>
+            <div className="grid md:grid-cols-3 gap-4">
+              {COLS.map((col) => {
+                const colTasks = tasks.filter((t) => t.status === col.key);
+                return (
+                  <div key={col.key} className="rounded-2xl border border-white/10 bg-white/[0.02] p-3">
+                    <div className="flex items-center justify-between px-2 py-1.5 mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className={`w-2 h-2 rounded-full ${col.dot}`} />
+                        <span className="text-[10px] tracking-[0.2em] font-semibold text-zinc-300">{col.label}</span>
+                      </div>
+                      <span className="text-[10px] text-zinc-500 bg-white/5 px-1.5 py-0.5 rounded">{colTasks.length}</span>
+                    </div>
+                    <div className="space-y-2">
+                      {colTasks.map((t) => (
+                        <div key={t._id} className="rounded-xl border border-white/10 bg-white/[0.04] p-3 group">
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-sm text-white font-medium">{t.title}</p>
+                            {user?.role === 'admin' && (
+                              <button onClick={() => deleteTask(t._id)} className="opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-rose-400 transition shrink-0">
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                          {t.assignedTo && (
+                            <div className="flex items-center gap-1.5 mt-2">
+                              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 grid place-items-center text-[9px] font-semibold">
+                                {t.assignedTo.name?.[0]?.toUpperCase()}
+                              </div>
+                              <span className="text-[11px] text-zinc-400">{t.assignedTo.name}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center justify-between mt-2 gap-2">
+                            <span className={`text-[10px] font-semibold capitalize ${priorityColor[t.priority] || 'text-zinc-400'}`}>{t.priority}</span>
+                            <select value={t.status} onChange={(e) => updateTaskStatus(t._id, e.target.value)}
+                              className="bg-white/5 border border-white/10 rounded-md px-1.5 py-0.5 text-[10px] text-zinc-300 focus:outline-none">
+                              <option value="todo">Todo</option>
+                              <option value="in-progress">In Progress</option>
+                              <option value="done">Done</option>
+                            </select>
+                          </div>
+                        </div>
+                      ))}
+                      {colTasks.length === 0 && (
+                        <p className="text-xs text-zinc-600 px-2 py-3">No tasks</p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </section>
         </main>
