@@ -1,88 +1,57 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
+import { ChevronRight, FolderKanban } from 'lucide-react';
+import Sidebar from '../components/Sidebar';
+import Topnav from '../components/Topnav';
 import api from '../lib/api';
-import { useAuth } from '../context/AuthContext';
-
-const STATUSES = ['todo', 'in-progress', 'done'];
 
 export default function ProjectDetail() {
   const { id } = useParams();
-  const { user } = useAuth();
   const [project, setProject] = useState(null);
-  const [tasks, setTasks] = useState([]);
-  const [form, setForm] = useState({ title: '', assignedTo: '', dueDate: '', priority: 'medium' });
 
-  const load = async () => {
-    const [p, t] = await Promise.all([
-      api.get(`/projects/${id}`),
-      api.get(`/tasks?project=${id}`),
-    ]);
-    setProject(p.data);
-    setTasks(t.data);
-  };
+  useEffect(() => {
+    api.get(`/projects/${id}`).then((r) => setProject(r.data)).catch(() => {});
+  }, [id]);
 
-  useEffect(() => { load(); }, [id]);
-
-  const createTask = async (e) => {
-    e.preventDefault();
-    await api.post('/tasks', { ...form, project: id });
-    setForm({ title: '', assignedTo: '', dueDate: '', priority: 'medium' });
-    load();
-  };
-
-  const updateStatus = async (taskId, status) => {
-    await api.patch(`/tasks/${taskId}`, { status });
-    load();
-  };
-
-  if (!project) return <div className="p-6 text-zinc-400">Loading…</div>;
+  if (!project) return (
+    <div className="min-h-screen bg-[#0A0612] flex items-center justify-center text-zinc-400">Loading…</div>
+  );
 
   return (
-    <div className="min-h-screen p-6 max-w-7xl mx-auto space-y-6">
-      <header>
-        <h1 className="text-2xl font-semibold">{project.name}</h1>
-        <p className="text-zinc-400 text-sm">{project.description}</p>
-      </header>
+    <div className="min-h-screen bg-[#0A0612] text-zinc-100">
+      <Topnav />
+      <div className="flex">
+        <Sidebar />
+        <main className="flex-1 p-6 lg:p-10 space-y-8">
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-2 text-xs text-zinc-500">
+            <Link to="/projects" className="hover:text-zinc-300 transition">Projects</Link>
+            <ChevronRight className="w-3 h-3" />
+            <span className="text-zinc-300">{project.name}</span>
+          </nav>
 
-      {user?.role === 'admin' && (
-        <form onSubmit={createTask} className="card grid md:grid-cols-5 gap-2">
-          <input className="input md:col-span-2" placeholder="Task title"
-            value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
-          <select className="input" value={form.assignedTo}
-            onChange={(e) => setForm({ ...form, assignedTo: e.target.value })}>
-            <option value="">Unassigned</option>
-            {project.members?.map((m) => (
-              <option key={m._id} value={m._id}>{m.name}</option>
-            ))}
-          </select>
-          <input className="input" type="date" value={form.dueDate}
-            onChange={(e) => setForm({ ...form, dueDate: e.target.value })} />
-          <button className="btn-primary">Add Task</button>
-        </form>
-      )}
-
-      <div className="grid md:grid-cols-3 gap-4">
-        {STATUSES.map((s) => (
-          <div key={s} className="card">
-            <h3 className="font-semibold capitalize mb-3">{s.replace('-', ' ')}</h3>
-            <div className="space-y-2">
-              {tasks.filter((t) => t.status === s).map((t) => (
-                <div key={t._id} className="bg-white/5 border border-white/10 rounded-lg p-3">
-                  <p className="font-medium text-sm">{t.title}</p>
-                  <p className="text-xs text-zinc-400 mt-1">
-                    {t.assignedTo?.name || 'Unassigned'}
-                    {t.dueDate && ` · ${new Date(t.dueDate).toLocaleDateString()}`}
-                  </p>
-                  <select value={t.status}
-                    onChange={(e) => updateStatus(t._id, e.target.value)}
-                    className="input mt-2 text-xs">
-                    {STATUSES.map((x) => <option key={x} value={x}>{x}</option>)}
-                  </select>
-                </div>
-              ))}
+          {/* Project header */}
+          <header className="flex items-start justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500/30 to-violet-500/0 border border-white/10 grid place-items-center">
+                <FolderKanban className="w-7 h-7 text-violet-300" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-semibold">{project.name}</h1>
+                <p className="text-zinc-400 text-sm mt-0.5">{project.description || 'No description'}</p>
+              </div>
             </div>
-          </div>
-        ))}
+            <div className="flex items-center gap-2">
+              <span className={`text-[10px] tracking-[0.15em] font-semibold px-3 py-1.5 rounded-full border ${
+                project.status === 'archived'
+                  ? 'bg-zinc-500/10 text-zinc-400 border-zinc-500/30'
+                  : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+              }`}>
+                {project.status?.toUpperCase() || 'ACTIVE'}
+              </span>
+            </div>
+          </header>
+        </main>
       </div>
     </div>
   );
