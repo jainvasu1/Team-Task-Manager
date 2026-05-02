@@ -2,9 +2,11 @@
 
 A full-stack web app for managing projects and tasks across a team, built with role-based access so admins and members each see only what they need.
 
+**Live app:** https://striking-beauty-production.up.railway.app
+
 ## Tech used
 
-Backend is Node.js with Express and MongoDB. Frontend is React (Vite) with TailwindCSS. Auth is JWT stored in localStorage.
+Backend is Node.js with Express and MongoDB Atlas. Frontend is React (Vite) with TailwindCSS. Auth is JWT stored in localStorage or sessionStorage depending on the Remember Me choice.
 
 ## How to run locally
 
@@ -47,11 +49,14 @@ Open `http://localhost:5173` in the browser.
 
 Sign up at `/signup`. Set role to **Admin** to get full access (create projects, tasks, manage members). Members can view and update task status only.
 
+You can create multiple accounts to test both roles together.
+
 ## Features
 
-- Signup and login with JWT auth
-- Projects: create, view, delete, manage members
-- Tasks: create with priority and due date, assign to members, move between Todo / In Progress / Done
-- Dashboard showing task status breakdown and overdue count
-- Team page listing all workspace members with roles
+- Signup and login with JWT auth, remember me option keeps you logged in across sessions
+- Forgot password — reset directly from the login page without any email flow
+- Projects: create, view, delete, manage members per project
+- Tasks: create with priority and due date, assign to members, drag between Todo / In Progress / Done
+- Dashboard showing live task stats and overdue count
+- Team page listing all workspace members with roles and join date
 - Role-based access throughout — admin-only actions are hidden from members
